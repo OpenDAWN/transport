@@ -7,7 +7,7 @@
 
 var TimeEngine = require("time-engine");
 var PriorityQueue = require("priority-queue");
-var scheduler = require("scheduler");
+var defaultAudioContext = require("audioContext");
 
 function removeCouple(firstArray, secondArray, firstElement) {
   var index = firstArray.indexOf(firstElement);
@@ -133,7 +133,7 @@ var TransportedTransported = (function(super$0){if(!PRS$0)MIXIN$0(TransportedTra
       this$0.resetNextPosition(nextEnginePosition);
     }, function()  {
       // getCurrentTime
-      return scheduler.currentTime;
+      return this$0.__transport.scheduler.currentTime;
     }, function()  {
       // get currentPosition
       return this$0.__transport.currentPosition - this$0.__offsetPosition;
@@ -177,7 +177,7 @@ var TransportedSpeedControlled = (function(super$0){if(!PRS$0)MIXIN$0(Transporte
 
     engine.setSpeedControlled(this, function()  {
       // getCurrentTime
-      return scheduler.currentTime;
+      return this$0.__transport.scheduler.currentTime;
     }, function()  {
       // get currentPosition
       return this$0.__transport.currentPosition - this$0.__offsetPosition;
@@ -210,7 +210,7 @@ var TransportedScheduled = (function(super$0){if(!PRS$0)MIXIN$0(TransportedSched
   function TransportedScheduled(transport, engine, startPosition, endPosition, offsetPosition) {var this$0 = this;
     super$0.call(this, transport, engine, startPosition, endPosition, offsetPosition);
 
-    scheduler.add(engine, Infinity, function()  {
+    this.__transport.scheduler.add(engine, Infinity, function()  {
       // get currentPosition
       return (this$0.__transport.currentPosition - this$0.__offsetPosition) * this$0.__scalePosition;
     });
@@ -225,7 +225,7 @@ var TransportedScheduled = (function(super$0){if(!PRS$0)MIXIN$0(TransportedSched
   };
 
   proto$0.destroy = function() {
-    scheduler.remove(this.__engine);
+    this.__transport.scheduler.remove(this.__engine);
     super$0.prototype.destroy.call(this);
   };
 MIXIN$0(TransportedScheduled.prototype,proto$0);proto$0=void 0;return TransportedScheduled;})(Transported);
@@ -250,13 +250,16 @@ var TransportSchedulerHook = (function(super$0){if(!PRS$0)MIXIN$0(TransportSched
 MIXIN$0(TransportSchedulerHook.prototype,proto$0);proto$0=void 0;return TransportSchedulerHook;})(TimeEngine);
 
 /**
- * xxx
- *
- *
+ * Transport
+ * 
  */
 var Transport = (function(super$0){if(!PRS$0)MIXIN$0(Transport, super$0);var proto$0={};var S_ITER$0 = typeof Symbol!=='undefined'&&Symbol&&Symbol.iterator||'@@iterator';var S_MARK$0 = typeof Symbol!=='undefined'&&Symbol&&Symbol["__setObjectSetter__"];function GET_ITER$0(v){if(v){if(Array.isArray(v))return 0;var f;if(S_MARK$0)S_MARK$0(v);if(typeof v==='object'&&typeof (f=v[S_ITER$0])==='function'){if(S_MARK$0)S_MARK$0(void 0);return f.call(v);}if(S_MARK$0)S_MARK$0(void 0);if((v+'')==='[object Generator]')return v;}throw new Error(v+' is not iterable')};
-  function Transport() {
-    super$0.call(this);
+  function Transport() {var options = arguments[0];if(options === void 0)options = {};var audioContext = arguments[1];if(audioContext === void 0)audioContext = defaultAudioContext;
+    super$0.call(this, audioContext);
+
+    // future assignment
+    // this.scheduler = waves.getScheduler(audioContext);
+    this.scheduler = require("scheduler");
 
     this.__engines = [];
     this.__transported = [];
@@ -316,7 +319,7 @@ var Transport = (function(super$0){if(!PRS$0)MIXIN$0(Transport, super$0);var pro
    * This function will be replaced when the transport is added to a master (i.e. transport or play-control).
    */
   function $currentTime_get$0() {
-    return scheduler.currentTime;
+    return this.scheduler.currentTime;
   }
 
   /**
@@ -326,7 +329,7 @@ var Transport = (function(super$0){if(!PRS$0)MIXIN$0(Transport, super$0);var pro
    * This function will be replaced when the transport is added to a master (i.e. transport or play-control).
    */
   function $currentPosition_get$0() {
-    return this.__position + (scheduler.currentTime - this.__time) * this.__speed;
+    return this.__position + (this.scheduler.currentTime - this.__time) * this.__speed;
   }
 
   /**
@@ -382,7 +385,7 @@ var Transport = (function(super$0){if(!PRS$0)MIXIN$0(Transport, super$0);var pro
 
         // schedule transport itself
         this.__schedulerHook = new TransportSchedulerHook(this);
-        scheduler.add(this.__schedulerHook, Infinity);
+        this.scheduler.add(this.__schedulerHook, Infinity);
       } else if (speed === 0) {
         // stop
         nextPosition = Infinity;
@@ -390,7 +393,7 @@ var Transport = (function(super$0){if(!PRS$0)MIXIN$0(Transport, super$0);var pro
         this.__syncTransportedSpeed(time, position, 0);
 
         // unschedule transport itself
-        scheduler.remove(this.__schedulerHook);
+        this.scheduler.remove(this.__schedulerHook);
         delete this.__schedulerHook;
       } else {
         // change speed without reversing direction
@@ -443,7 +446,7 @@ var Transport = (function(super$0){if(!PRS$0)MIXIN$0(Transport, super$0);var pro
         }
       }, function()  {
         // getCurrentTime
-        return scheduler.currentTime;
+        return this$0.__transport.scheduler.currentTime;
       }, function()  {
         // get currentPosition
         return this$0.__transport.currentPosition - this$0.__offsetPosition;

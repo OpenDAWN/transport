@@ -250,9 +250,8 @@ class TransportSchedulerHook extends TimeEngine {
 }
 
 /**
- * xxx
- *
- *
+ * Transport
+ * 
  */
 class Transport extends TimeEngine {
   constructor(options = {}, audioContext = defaultAudioContext) {
