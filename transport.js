@@ -7,7 +7,6 @@
 
 var TimeEngine = require("time-engine");
 var PriorityQueue = require("priority-queue");
-var defaultAudioContext = require("audioContext");
 
 function removeCouple(firstArray, secondArray, firstElement) {
   var index = firstArray.indexOf(firstElement);
@@ -250,15 +249,12 @@ var TransportSchedulerHook = (function(super$0){if(!PRS$0)MIXIN$0(TransportSched
 MIXIN$0(TransportSchedulerHook.prototype,proto$0);proto$0=void 0;return TransportSchedulerHook;})(TimeEngine);
 
 /**
- * Transport
- * 
+ *  Transport class
  */
 var Transport = (function(super$0){if(!PRS$0)MIXIN$0(Transport, super$0);var proto$0={};var S_ITER$0 = typeof Symbol!=='undefined'&&Symbol&&Symbol.iterator||'@@iterator';var S_MARK$0 = typeof Symbol!=='undefined'&&Symbol&&Symbol["__setObjectSetter__"];function GET_ITER$0(v){if(v){if(Array.isArray(v))return 0;var f;if(S_MARK$0)S_MARK$0(v);if(typeof v==='object'&&typeof (f=v[S_ITER$0])==='function'){if(S_MARK$0)S_MARK$0(void 0);return f.call(v);}if(S_MARK$0)S_MARK$0(void 0);if((v+'')==='[object Generator]')return v;}throw new Error(v+' is not iterable')};
-  function Transport() {var options = arguments[0];if(options === void 0)options = {};var audioContext = arguments[1];if(audioContext === void 0)audioContext = defaultAudioContext;
-    super$0.call(this, audioContext);
+  function Transport() {
+    super$0.call(this);
 
-    // future assignment
-    // this.scheduler = waves.getScheduler(audioContext);
     this.scheduler = require("scheduler");
 
     this.__engines = [];
